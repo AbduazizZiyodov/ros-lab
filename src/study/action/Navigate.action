@@ -1,0 +1,18 @@
+# from tg channel ...
+
+# ── GOAL ────────────────────────────────────────────────────────────
+geometry_msgs/PoseStamped  target_pose      # Destination (frame_id + pose)
+float32                    max_speed        # Maximum speed in m/s
+bool                       avoid_obstacles  # Enable obstacle avoidance
+---
+# ── RESULT ──────────────────────────────────────────────────────────
+bool     success           # True if robot reached goal
+string   status_message    # Human-readable status
+float32  total_distance    # Path length actually travelled (m)
+float32  time_elapsed      # Wall-clock time taken (s)
+---
+# ── FEEDBACK ────────────────────────────────────────────────────────
+geometry_msgs/Point  current_position     # Robot's current XY position
+float32              distance_to_goal     # Remaining distance (m)
+float32              progress_percentage  # 0.0 – 100.0
+string               current_status       # e.g. "Navigating", "Rotating"

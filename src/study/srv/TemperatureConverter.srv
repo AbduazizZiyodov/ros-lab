@@ -1,0 +1,7 @@
+# request
+float64 celcius
+---
+# response
+float64 fahrenheit
+float64 kelvin
+bool valid
