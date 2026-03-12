@@ -1,7 +1,7 @@
 full-setup: get-gazebo-models ros-image-build ros-up
 
 ros-up:
-	echo "Starting workspace container"
+	@echo "Starting workspace container"
 	xhost +local:docker
 	rocker --privileged \
 		--devices /dev/input/js0 \
@@ -17,13 +17,15 @@ ros-shell:
 	docker start ros_noetic && docker exec -it ros_noetic bash -c "tmux new-session -A -s main"
 
 ros-stop:
-	echo "Stopping & removing ros noetic container"
-	@docker stop ros_noetic && docker rm -f ros_noetic
+	@echo "Stopping & removing ros noetic container"
+	docker stop ros_noetic && docker rm -f ros_noetic
+	docker ps -a
 
 ros-image-build:
-	echo "Building custom ros noetic docker image for workspace"
-	@docker build -t ros_noetic_custom .
+	@echo "Building custom ros noetic docker image for workspace"
+	docker build -t ros_noetic_custom .
+	docker image ls
 
 get-gazebo-models:
-	echo "Getting gazebo simulation models"
-	@git -C gazebo_models pull || git clone https://github.com/osrf/gazebo_models
+	@echo "Getting gazebo simulation models"
+	git -C gazebo_models pull || git clone https://github.com/osrf/gazebo_models
