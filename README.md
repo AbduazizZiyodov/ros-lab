@@ -1,4 +1,4 @@
-# **ROS-Lab**
+# **ROS 1 (noetic) Lab**
 
 ![12](./.github/assets/12.png)
 
