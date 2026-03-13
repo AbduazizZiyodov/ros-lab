@@ -141,10 +141,12 @@ Spawn terminal + tmux, start developing.
 
 ## Known Issue(s)
 
-After restarting the PC:
+* After restarting the PC:
 
 ```shell
 [ros-lab] # docker start ros_noetic 
 Error response from daemon: failed to create task for container: failed to create shim task: OCI runtime create failed: runc create failed: unable to start container process: error during container init: error mounting "/tmp/.dockeryio10bi4.xauth" to rootfs at "/tmp/.dockeryio10bi4.xauth": mount src=/tmp/.dockeryio10bi4.xauth, dst=/tmp/.dockeryio10bi4.xauth, dstFd=/proc/thread-self/fd/12, flags=MS_BIND|MS_REC: not a directory: Are you trying to mount a directory onto a file (or vice-versa)? Check if the specified host path exists and is the expected type
 failed to start containers: ros_noetic
 ```
+
+* Haven't tested with non-nvidia GPUs (i.e. integrated GPUs), will do soon
