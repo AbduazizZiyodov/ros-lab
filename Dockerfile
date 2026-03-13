@@ -52,7 +52,6 @@ COPY .bashrc /tmp/.bashrc_append
 RUN cat /tmp/.bashrc_append >> /root/.bashrc && rm /tmp/.bashrc_append
 
 COPY .tmux.conf /root/.tmux.conf
-RUN git clone https://github.com/tmux-plugins/tpm /root/.tmux/plugins/tpm
 
 RUN mkdir -p /root/.gazebo/models
 COPY gazebo_models/ /root/.gazebo/models
