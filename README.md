@@ -2,6 +2,10 @@
 
 ![12](./.github/assets/12.png)
 
+<p align="center">
+  <i>"My approach on setting up ROS 1 (noetic) & turtlebot3 (burger) development environment via docker."</i>
+</p>
+
 <!-- AI-FREE -->
 <p align="center">
   <picture>
@@ -9,10 +13,6 @@
     <source media="(prefers-color-scheme: light)" srcset="https://abduaziz.ziyodov.uz/badges/ai-free-light.svg">
     <img alt="bruh" src="https://abduaziz.ziyodov.uz/badges/ai-free-dark.svg">
   </picture>
-</p>
-
-<p align="center">
-  <i>"My approach on setting up ROS 1 (noetic) & turtlebot3 (burger) development environment via docker."</i>
 </p>
 
 What's included (notable)
