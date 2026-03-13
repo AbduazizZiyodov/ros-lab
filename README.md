@@ -9,6 +9,8 @@
   </picture>
 </p>
 
+![5.png](./.github/assets/5.png)
+
 > My approach on setting up ROS development via `docker`.
 
 What's included (notable)
@@ -19,7 +21,8 @@ What's included (notable)
 * Default package called `study`
 * Xbox 360 joystik configuration
 
-Tested o my **Debian 13** (Linux dev 6.12.73+deb13-amd64 #1 SMP PREEMPT_DYNAMIC Debian 6.12.73-1 (2026-02-17) x86_64 GNU/Linux) **Wayland**/**X11** with **Nvidia RTX 4060** PC.
+> [!NOTE]
+>Tested o my **Debian 13** (Linux dev 6.12.73+deb13-amd64 #1 SMP PREEMPT_DYNAMIC Debian 6.12.73-1 (2026-02-17) x86_64 GNU/Linux) **Wayland**/**X11** with **Nvidia RTX 4060** PC.
 
 ## Setup
 
@@ -59,7 +62,8 @@ make full-setup
 
 After all of these setup thing you should get bash shell, and you can run `tmux`. Next, on `tmux` through ``Prefix`` + ``I`` where ``Prefix`` = ``CTRL`` + ``S`` you might want to install tmux plugins.
 
-Now, you should be able to do your experiments! IP address is defaulted into `hostname -I | cut -f1 -d' '` as it runs on `host` network.
+Now, you should be able to do your experiments! IP address is defaulted into `hostname -I | cut -f1 -d' '` as it runs on `host` network. Environment after the setup:
+![11.png](./.github/assets/11.png)
 
 You might re-start(if you've exited from it or killed) the `ros_noetic` container, or run `make ros-shell` to gain access on shell inside container.
 
@@ -74,7 +78,7 @@ Turtlesim via keyboard teleop:
 ![4.png](./.github/assets/4.png)
 
 Run sample script from `study` package (its action demo there):
-![5.png](./.github/assets/5.png)
+(see picture on top of this `README`)
 
 Check NVIDIA through `nvidia-smi`:
 ![6.png](./.github/assets/6.png)
@@ -120,6 +124,14 @@ Then it will install Vs Code server on container, after that you should be able 
 ![10](./.github/assets/10.png)
 
 Spawn terminal + tmux, start developing.
+
+### Visual Studio Code Extensions
+
+* **Dev Containers** - <https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-containers>
+* **Python** - <https://marketplace.visualstudio.com/items?itemName=ms-python.python>
+* **Robot Developer Extensions for ROS 1** - <https://marketplace.visualstudio.com/items?itemName=Ranch-Hand-Robotics.rde-ros-1>
+* **C/C++ DevTools** - <https://marketplace.visualstudio.com/items?itemName=ms-vscode.cpp-devtools> - it is required by ROS 1 extension above (as far as I can remember), but I prefer `Clangd` (see below)
+* **Clangd** - <https://marketplace.visualstudio.com/items?itemName=llvm-vs-code-extensions.vscode-clangd>
 
 ## Notes
 
