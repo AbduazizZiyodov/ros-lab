@@ -48,7 +48,7 @@ COPY src/ src/
 
 RUN /bin/bash -c "source /opt/ros/noetic/setup.bash && catkin_make"
 
-COPY .bashrc_append /tmp/.bashrc_append
+COPY .bashrc /tmp/.bashrc_append
 RUN cat /tmp/.bashrc_append >> /root/.bashrc && rm /tmp/.bashrc_append
 
 COPY .tmux.conf /root/.tmux.conf
