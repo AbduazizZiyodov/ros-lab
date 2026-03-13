@@ -11,7 +11,9 @@
   </picture>
 </p>
 
-> My approach on setting up ROS development via `docker`.
+<p align="center">
+  <i>"My approach on setting up ROS 1 development environment via docker."</i>
+</p>
 
 What's included (notable)
 
