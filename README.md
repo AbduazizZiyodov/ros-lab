@@ -9,9 +9,9 @@
   </picture>
 </p>
 
-My approach on setting up ROS development via `docker`.
+> My approach on setting up ROS development via `docker`.
 
-What's included
+What's included (notable)
 
 * Full ROS desktop environment with extras, feel free to extend it (see `Dockerfile` ...)
 * NVIDIA GPU support via `rocker` for gazebo simulations + "pre-fetching" gazebo models
