@@ -1,5 +1,7 @@
 # **ROS-Lab**
 
+![12](./.github/assets/12.png)
+
 <!-- AI-FREE -->
 <p align="center">
   <picture>
@@ -8,8 +10,6 @@
     <img alt="bruh" src="https://abduaziz.ziyodov.uz/badges/ai-free-dark.svg">
   </picture>
 </p>
-
-![5.png](./.github/assets/5.png)
 
 > My approach on setting up ROS development via `docker`.
 
@@ -54,11 +54,13 @@ Clone current repository:
 git clone git@github.com:AbduazizZiyodov/ros-lab.git
 ```
 
-Trigger `full-setup` command
+Trigger `full-setup` command to spin up container(s):
 
 ```shell
 make full-setup
 ```
+
+> FYI: containers are built on top of "Ubuntu 20.04.6 LTS" (as noetic *requires*).
 
 After all of these setup thing you should get bash shell, and you can run `tmux`. Next, on `tmux` through ``Prefix`` + ``I`` where ``Prefix`` = ``CTRL`` + ``S`` you might want to install tmux plugins.
 
@@ -78,7 +80,7 @@ Turtlesim via keyboard teleop:
 ![4.png](./.github/assets/4.png)
 
 Run sample script from `study` package (its action demo there):
-(see picture on top of this `README`)
+![5.png](./.github/assets/5.png)
 
 Check NVIDIA through `nvidia-smi`:
 ![6.png](./.github/assets/6.png)
