@@ -12,7 +12,7 @@
 </p>
 
 <p align="center">
-  <i>"My approach on setting up ROS 1 & turtlebot3 (burger) development environment via docker."</i>
+  <i>"My approach on setting up ROS 1 (noetic) & turtlebot3 (burger) development environment via docker."</i>
 </p>
 
 What's included (notable)
