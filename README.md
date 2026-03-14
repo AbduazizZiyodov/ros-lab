@@ -58,13 +58,16 @@ Clone current repository:
 git clone git@github.com:AbduazizZiyodov/ros-lab.git
 ```
 
-Trigger `full-setup` command to spin up container(s):
+Trigger `full-setup-nvidia`/`full-setup-non-nvidia` command to spin up container(s):
 
 ```shell
-make full-setup
+make full-setup-nvidia
+# or
+make full-setup-non-nvidia
 ```
 
-> FYI: containers are built on top of "Ubuntu 20.04.6 LTS" (as noetic _requires_).
+> [!NOTE]
+> For non-nvidia option, `rocker` mounts `--devices /dev/dri` for Intel integrated graphics support .
 
 After all of these setup thing you should get bash shell, and you can run `tmux`.
 
