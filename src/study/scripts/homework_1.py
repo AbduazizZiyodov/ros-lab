@@ -1,139 +1,132 @@
 #!/usr/bin/env python3
-
+import os
 import math
-import rospy
 import threading
+import rospy
+
 from turtlesim.srv import Spawn, Kill, TeleportAbsolute, SetPen
 
+__all__ = ("Turtle",)
 
-DIGIT_WIDTH = 1.0
-DIGIT_HEIGHT = 1.0
-SPACING = 2.0
-WIDTH = 20
-RGB_COLOR = (255, 255, 255)
+COLOR = (255, 255, 255)
+WIDTH = 4
+SCALE = 3.0
+SPACING = 0.20
+SAMPLES = 32
+START_X = 0.5
+BASELINE_Y = 4.0
+NODE_NAME = "homework-1"
 
-SEGMENTS = {
-    "a": (0, DIGIT_HEIGHT * 2, DIGIT_WIDTH, DIGIT_HEIGHT * 2),
-    "b": (DIGIT_WIDTH, DIGIT_HEIGHT * 2, DIGIT_WIDTH, DIGIT_HEIGHT),
-    "c": (DIGIT_WIDTH, DIGIT_HEIGHT, DIGIT_WIDTH, 0),
-    "d": (0, 0, DIGIT_WIDTH, 0),
-    "e": (0, DIGIT_HEIGHT, 0, 0),
-    "f": (0, DIGIT_HEIGHT * 2, 0, DIGIT_HEIGHT),
-    "g": (0, DIGIT_HEIGHT, DIGIT_WIDTH, DIGIT_HEIGHT),
+# Extracted using Ramer-Douglas-Peucker & TTF
+
+# fmt: off
+DIGITS = {
+    0: [
+        [(0.6752,0.5000), (0.6744,0.3554), (0.6610,0.2783), (0.6449,0.2314), (0.6185,0.1761), (0.5839,0.1204), (0.5542,0.0847), (0.5277,0.0606), (0.4909,0.0362), (0.4501,0.0180), (0.4053,0.0061), (0.3463,0.0001), (0.2468,0.0001), (0.1944,0.0151), (0.1629,0.0360), (0.1314,0.0659), (0.0739,0.1440), (0.0362,0.2292), (0.0139,0.3204), (0.0007,0.4551), (0.0007,0.6486), (0.0156,0.7346), (0.0499,0.8205), (0.0869,0.8829), (0.1220,0.9238), (0.1638,0.9560), (0.2122,0.9794), (0.2673,0.9940), (0.3291,0.9999), (0.4366,0.9995), (0.4844,0.9851), (0.5264,0.9555), (0.5627,0.9167), (0.5985,0.8658), (0.6292,0.8031), (0.6493,0.7401), (0.6637,0.6686), (0.6723,0.5886), (0.6752,0.5000)],
+        [(0.5490,0.5000), (0.5482,0.6313), (0.5397,0.6952), (0.5144,0.7750), (0.4761,0.8416), (0.4309,0.8785), (0.3734,0.8970), (0.2721,0.8985), (0.2511,0.8919), (0.2307,0.8789), (0.1881,0.8280), (0.1560,0.7597), (0.1365,0.6734), (0.1267,0.5637), (0.1257,0.3837), (0.1326,0.3200), (0.1616,0.2274), (0.2012,0.1599), (0.2469,0.1224), (0.2741,0.1107), (0.3106,0.1029), (0.4023,0.1022), (0.4260,0.1109), (0.4493,0.1290), (0.4722,0.1565), (0.4979,0.1993), (0.5248,0.2708), (0.5429,0.3730), (0.5490,0.5000)],
+    ],
+    2: [
+        [(0.0000,0.0000), (0.0000,0.0889), (0.0272,0.1487), (0.0532,0.1893), (0.1065,0.2563), (0.1740,0.3271), (0.3665,0.4893), (0.4340,0.5548), (0.4672,0.5976), (0.4895,0.6365), (0.5024,0.6757), (0.5076,0.7184), (0.5060,0.7818), (0.4872,0.8215), (0.4410,0.8670), (0.3862,0.8902), (0.3435,0.8961), (0.2801,0.8961), (0.2531,0.8893), (0.2238,0.8739), (0.1891,0.8472), (0.1624,0.8151), (0.1441,0.7760), (0.1343,0.7301), (0.0056,0.7420), (0.0138,0.8085), (0.0247,0.8390), (0.0559,0.8833), (0.1059,0.9301), (0.1522,0.9607), (0.2046,0.9825), (0.2868,0.9983), (0.4024,1.0000), (0.4400,0.9956), (0.4832,0.9802), (0.5272,0.9536), (0.5667,0.9207), (0.5957,0.8855), (0.6170,0.8447), (0.6321,0.7911), (0.6370,0.7381), (0.6358,0.6875), (0.6211,0.6395), (0.5876,0.5736), (0.5361,0.5063), (0.4512,0.4250), (0.2388,0.2427), (0.1774,0.1729), (0.1385,0.1070), (0.6524,0.1070), (0.6524,0.0000), (0.0000,0.0000)],
+    ],
+    6: [
+        [(0.6517,0.3317), (0.6497,0.2305), (0.6282,0.1697), (0.6008,0.1273), (0.5576,0.0782), (0.5226,0.0500), (0.4831,0.0281), (0.4392,0.0125), (0.3823,0.0022), (0.2353,0.0019), (0.2041,0.0119), (0.1726,0.0305), (0.1139,0.0869), (0.0764,0.1378), (0.0530,0.1808), (0.0339,0.2292), (0.0166,0.2945), (0.0014,0.4207), (0.0004,0.6193), (0.0127,0.6994), (0.0427,0.7812), (0.0961,0.8731), (0.1472,0.9302), (0.1840,0.9572), (0.2246,0.9777), (0.2689,0.9916), (0.3270,0.9995), (0.4843,0.9969), (0.5212,0.9807), (0.5544,0.9505), (0.5929,0.8887), (0.6248,0.8021), (0.5062,0.7807), (0.4867,0.8436), (0.4749,0.8631), (0.4477,0.8826), (0.4014,0.8956), (0.2831,0.8984), (0.2560,0.8876), (0.2317,0.8680), (0.1781,0.7941), (0.1485,0.7218), (0.1291,0.6224), (0.1234,0.5138), (0.1439,0.5511), (0.1636,0.5729), (0.2075,0.6032), (0.2587,0.6266), (0.3023,0.6375), (0.3446,0.6418), (0.4308,0.6420), (0.4697,0.6339), (0.5059,0.6154), (0.5436,0.5865), (0.5823,0.5472), (0.6073,0.5122), (0.6267,0.4732), (0.6406,0.4301), (0.6517,0.3317)],
+        [(0.5255,0.3262), (0.5237,0.3989), (0.5142,0.4294), (0.4988,0.4571), (0.4738,0.4890), (0.4454,0.5140), (0.4164,0.5301), (0.3784,0.5417), (0.2780,0.5458), (0.2342,0.5302), (0.1992,0.5046), (0.1711,0.4752), (0.1509,0.4396), (0.1401,0.4029), (0.1367,0.2854), (0.1575,0.2233), (0.1914,0.1717), (0.2211,0.1403), (0.2547,0.1179), (0.2973,0.1034), (0.3956,0.1021), (0.4250,0.1151), (0.4556,0.1398), (0.4892,0.1803), (0.5094,0.2218), (0.5215,0.2704), (0.5255,0.3262)],
+    ],
+    5: [
+        [(0.6795,0.3352), (0.6772,0.2325), (0.6665,0.1970), (0.6502,0.1657), (0.6183,0.1228), (0.5749,0.0787), (0.5359,0.0504), (0.4919,0.0283), (0.4429,0.0126), (0.3887,0.0031), (0.2343,0.0021), (0.1926,0.0132), (0.1484,0.0339), (0.1018,0.0640), (0.0686,0.0936), (0.0256,0.1565), (0.0000,0.2344), (0.1274,0.2491), (0.1546,0.1589), (0.1740,0.1374), (0.2036,0.1212), (0.2756,0.1054), (0.3863,0.1029), (0.4155,0.1088), (0.4423,0.1222), (0.4982,0.1719), (0.5305,0.2265), (0.5459,0.2878), (0.5486,0.3819), (0.5441,0.4060), (0.5304,0.4347), (0.4873,0.4864), (0.4374,0.5200), (0.3817,0.5367), (0.3064,0.5402), (0.2609,0.5312), (0.2042,0.5074), (0.1519,0.4696), (0.0287,0.4696), (0.0616,1.0000), (0.6221,1.0000), (0.6221,0.8929), (0.1763,0.8929), (0.1575,0.5801), (0.2132,0.6207), (0.2811,0.6387), (0.4430,0.6428), (0.5002,0.6268), (0.5404,0.6028), (0.5770,0.5730), (0.6085,0.5413), (0.6348,0.5056), (0.6551,0.4663), (0.6693,0.4234), (0.6795,0.3352)],
+    ],
 }
+# fmt: on
 
 
-DIGIT_SEGMENTS = {
-    0: ("a", "b", "c", "d", "e", "f"),
-    2: ("a", "b", "d", "e", "g"),
-    5: ("a", "c", "d", "f", "g"),
-    6: ("a", "c", "d", "e", "f", "g"),
-}
+class Turtle(threading.Thread):
+    """Turtle is just aaa thread, sketchy abstraction"""
 
-_turtle_counter: int = 0
+    counter: int = 0
+    lock: threading.Lock = threading.Lock()
 
+    def __init__(self, digit: int, idx: int) -> None:
+        with Turtle.lock:
+            Turtle.counter += 1
+            name = f"worker_{Turtle.counter}"
 
-def next_turtle_name() -> str:
-    global _turtle_counter
-    _turtle_counter += 1
+        super().__init__(name=name)
+        self.name = name
 
-    return f"worker_{_turtle_counter}"
+        self.spawn()
+        self.pen(off=True)
 
+        self.digit, self.idx = digit, idx
+        self.width = max(
+            max(point[0] for point in segment) for segment in DIGITS[self.digit]
+        )
+        self.ox = START_X + self.idx * (self.width + SPACING) * SCALE
 
-def spawn_turtle(name: str, x: float, y: float, theta: float = 0.0) -> None:
-    rospy.wait_for_service("/spawn")
-    rospy.ServiceProxy("/spawn", Spawn)(x, y, theta, name)
+    def run(self) -> None:
+        self.draw()
 
+    def draw(self) -> None:
+        for stroke in DIGITS[self.digit]:
+            self.trace(stroke, self.ox, BASELINE_Y, SCALE)
+        self.kill()
 
-def kill_turtle(name: str) -> None:
-    try:
+    def spawn(self) -> None:
+        rospy.wait_for_service("/spawn")
+        rospy.ServiceProxy("/spawn", Spawn)(0.5, 0.5, 0.0, self.name)
+
+    def kill(self) -> None:
         rospy.wait_for_service("/kill")
-        rospy.ServiceProxy("/kill", Kill)(name)
-    except Exception as exc:
-        rospy.logerr(f"Bruh {exc=}")
+        rospy.ServiceProxy("/kill", Kill)(self.name)
 
+    def pen(self, off: bool) -> None:
+        rospy.wait_for_service(f"/{self.name}/set_pen")
+        rospy.ServiceProxy(f"/{self.name}/set_pen", SetPen)(*COLOR, WIDTH, int(off))
 
-def teleport(name: str, x: float, y: float, theta: float) -> None:
-    rospy.wait_for_service(f"/{name}/teleport_absolute")
-    rospy.ServiceProxy(f"/{name}/teleport_absolute", TeleportAbsolute)(x, y, theta)
-
-
-def set_pen(name: str, r: int, g: int, b: int, width: int, off: bool) -> None:
-    rospy.wait_for_service(f"/{name}/set_pen")
-    rospy.ServiceProxy(f"/{name}/set_pen", SetPen)(r, g, b, width, int(off))
-
-
-def draw_line(
-    name: str,
-    x1: float,
-    y1: float,
-    x2: float,
-    y2: float
-) -> None:
-    dx = x2 - x1
-    dy = y2 - y1
-    theta = math.atan2(dy, dx)
-
-    set_pen(name, *RGB_COLOR, WIDTH, off=True)
-    teleport(name, x1, y1, theta)
-
-    set_pen(name, *RGB_COLOR, WIDTH, off=False)
-    teleport(name, x2, y2, theta)
-
-    set_pen(name, *RGB_COLOR, WIDTH, off=True)
-
-
-def draw_digit(digit: int, origin_x: float, origin_y: float) -> None:
-    name = next_turtle_name()
-
-    spawn_turtle(name, 1, 1, 0.0)
-
-    segments = DIGIT_SEGMENTS[digit]
-
-    for seg_name in segments:
-        x1_rel, y1_rel, x2_rel, y2_rel = SEGMENTS[seg_name]
-
-        draw_line(
-            name,
-            origin_x + x1_rel,
-            origin_y + y1_rel,
-            origin_x + x2_rel,
-            origin_y + y2_rel,
+    def teleport(self, x: float, y: float, theta: float) -> None:
+        rospy.wait_for_service(f"/{self.name}/teleport_absolute")
+        rospy.ServiceProxy(f"/{self.name}/teleport_absolute", TeleportAbsolute)(
+            x, y, theta
         )
 
+    def heading(self, a: float, b: float) -> float:
+        return math.atan2(b[1] - a[1], b[0] - a[0])
 
-def draw_digits(digits: list, start_x: float = 2, start_y: float = 5) -> None:
-    workers = []
+    def trace(self, stroke: list, ox: float, oy: float, scale: float) -> None:
+        points = [(ox + p[0] * scale, oy + p[1] * scale) for p in stroke]
 
-    for i, digit in enumerate(digits):
-        workers.append(
-            threading.Thread(
-                target=draw_digit,
-                name=f"worker_{digit}",
-                args=(digit, start_x + i * SPACING, start_y),
+        self.pen(off=True)
+        self.teleport(points[0][0], points[0][1], self.heading(points[0], points[1]))
+        self.pen(off=False)
+
+        for i in range(1, len(points)):
+            self.teleport(
+                points[i][0], points[i][1], self.heading(points[i - 1], points[i])
             )
-        )
 
-    for worker in workers:
-        worker.start()
-
-    for worker in workers:
-        worker.join()
-
-
-def finalize_turtles() -> None:
-    for idx in range(1, _turtle_counter + 1):
-        kill_turtle(f"worker_{idx}")
+        self.pen(off=True)
 
 
 def main() -> int:
-    rospy.init_node("homework_1", anonymous=True)
-    kill_turtle("turtle1")
-    digits = [0, 2, 6, 5]
-    draw_digits(digits)
-    finalize_turtles()
+    rospy.init_node(NODE_NAME)
 
-    return 0
+    try:  # clear ...
+        rospy.wait_for_service("/kill")
+        rospy.ServiceProxy("/kill", Kill)("turtle1")
+    except Exception:
+        pass  # ignore ...
+
+    digits = [0, 2, 6, 5]
+
+    turtles = tuple(Turtle(digit, idx) for idx, digit in enumerate(digits))
+
+    for turtle in turtles:
+        turtle.start()
+
+    for turtle in turtles:
+        turtle.join()
+
+    return os.EX_OK
+
 
 if __name__ == "__main__":
     raise SystemExit(main())
