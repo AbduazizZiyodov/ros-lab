@@ -11,7 +11,7 @@ RUN apt-get update && apt-get install -y \
     vim nano curl wget git htop tmux \
     net-tools iputils-ping usbutils \
     x11-apps mesa-utils \
-    xboxdrv joystick \
+    xboxdrv joystick python3-pip \
     ros-noetic-rqt \
     ros-noetic-rqt-common-plugins \
     ros-noetic-rqt* \
