@@ -120,7 +120,7 @@ It reads `joy.yaml` configuration file, and assumes that joystik is device `/dev
 Turtlebot manual: <https://emanual.robotis.com/docs/en/platform/turtlebot3>
 ROS 1 Wiki: <https://wiki.ros.org/ROS/Tutorials>
 
-### Development
+### Development (Dev Containers, Attach)
 
 On Visual Studio Code you should install "Dev Containers" extension, then you can attach on running ros_noetic container and start develooping.
 
@@ -144,7 +144,7 @@ Spawn terminal + tmux, start developing.
 
 ## Notes
 
-- For intel integrated graphics support: <https://github.com/osrf/rocker#intel-integrated-graphics-support>
+- You might need to re-run `make ros-up-*` on each restart ... (known issue)
 
 ## Known Issue(s)
 
@@ -155,5 +155,3 @@ Spawn terminal + tmux, start developing.
 Error response from daemon: failed to create task for container: failed to create shim task: OCI runtime create failed: runc create failed: unable to start container process: error during container init: error mounting "/tmp/.dockeryio10bi4.xauth" to rootfs at "/tmp/.dockeryio10bi4.xauth": mount src=/tmp/.dockeryio10bi4.xauth, dst=/tmp/.dockeryio10bi4.xauth, dstFd=/proc/thread-self/fd/12, flags=MS_BIND|MS_REC: not a directory: Are you trying to mount a directory onto a file (or vice-versa)? Check if the specified host path exists and is the expected type
 failed to start containers: ros_noetic
 ```
-
-- Haven't tested with non-nvidia GPUs (i.e. integrated GPUs), will do soon
