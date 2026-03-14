@@ -7,6 +7,11 @@ export ROS_MASTER_URI="http://$ROS_IP:11311"
 export GAZEBO_MODEL_PATH=/root/.gazebo/models
 source /opt/ros/noetic/setup.bash
 source /root/catkin_ws/devel/setup.bash
+if command -v nvidia-smi &>/dev/null && nvidia-smi &>/dev/null; then
+    export __GLX_VENDOR_LIBRARY_NAME=nvidia
+    export __NV_PRIME_RENDER_OFFLOAD=1
+    export __VK_LAYER_NV_optimus=NVIDIA_only
+fi
 ros_teleop_joy() {
     roslaunch teleop_twist_joy teleop.launch \
         joy_dev:=/dev/input/js0 \
