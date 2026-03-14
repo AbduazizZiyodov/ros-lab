@@ -1,0 +1,4 @@
+<launch>
+  <node pkg="turtlesim" type="turtlesim_node" name="turtlesim_node" output="screen"/>
+  <node pkg="study" type="homework_1.py" name="homework_1"/>
+</launch>
