@@ -6,77 +6,73 @@
 ###
 
 import rospy
-import typing as t
 from geometry_msgs.msg import Twist
 from turtlesim.srv import Spawn
 from turtlesim.srv import Kill
 
 import random
 
-TURTLE_COUNT: "t.Final[int]" = 4
-INDICES: "tuple[int]" = tuple(range(1, TURTLE_COUNT + 1))
-
-
-def clear():
-    rospy.wait_for_service("/kill")
-    try:
-        kill_turtle = rospy.ServiceProxy("/kill", Kill)
-        for idx in INDICES:
-            kill_turtle(f"turtle{idx}")
-    except rospy.ServiceException as e:
-        print(f"Service call failed: {e}")
-
-
-def create_turtle(turtle_x, turtle_y, turtle_theta, turtle_name):
-    rospy.wait_for_service("spawn")
-    spawner = rospy.ServiceProxy("spawn", Spawn)
-    spawner(turtle_x, turtle_y, turtle_theta, turtle_name)
-
-
-def move_turtles_random():
-    publishers = (
-        rospy.Publisher(f"/turtle{idx}/cmd_vel", Twist, queue_size=10)
-        for idx in INDICES
-    )
-
-    v_pub1 = rospy.Publisher("/turtle2/cmd_vel", Twist, queue_size=10)
-    v_pub2 = rospy.Publisher("/turtle3/cmd_vel", Twist, queue_size=10)
-
-    rate = rospy.Rate(10)
-
-    vel1, vel2 = Twist(), Twist()
-
-    del_t = 1
-
-    while not rospy.is_shutdown():
-        if del_t % 5 == 0:
-            vel1.linear.x = random.uniform(0, 3)
-            vel1.angular.z = random.uniform(-2, 2)
-            vel2.linear.x = random.uniform(0, 3)
-            vel2.angular.z = random.uniform(-2, 2)
-
-        v_pub1.publish(vel1)
-        v_pub2.publish(vel2)
-
-        del_t += 1
-
-        rate.sleep()
+TURTLE_COUNT = 4
+INDICES = tuple(range(1, TURTLE_COUNT + 1))
+INITIAL_COORDINATES = (
+    (2,                   5.5, 10.0),
+    (2 + 2.5,             5.5, 10.0),
+    (2 + 2.5 + 2.5,       5.5, 10.0),
+    (2 + 2.5 + 2.5 + 2.5, 5.5, 10.0),
+)
 
 
 def main() -> int:
     try:
         rospy.init_node("turtle_spawner")
-
-        clear()
-        create_turtle(1, 1, 0, "turtle1")
-        create_turtle(9, 9, 0, "turtle2")
-        create_turtle(1, 1, 0, "turtle3")
-        create_turtle(9, 9, 0, "turtle4")
-
-        move_turtles_random()
-
+        kill_existing_turtles()
+        initialize_turtles()
+        # move_turtles_random()
     except rospy.ROSInterruptException:
         pass
+
+    return 0
+
+
+def kill_existing_turtles() -> None:
+    rospy.wait_for_service("/kill")
+    kill_turtle = rospy.ServiceProxy("/kill", Kill)
+
+    try:
+        for idx in INDICES:
+            kill_turtle(f"turtle{idx}")
+    except rospy.ServiceException as exc:
+        print(f"Service call failed: {exc}")
+
+
+def create_turtle(turtle_x, turtle_y, turtle_theta, turtle_name) -> None:
+    rospy.wait_for_service("spawn")
+    spawner = rospy.ServiceProxy("spawn", Spawn)
+    spawner(turtle_x, turtle_y, turtle_theta, turtle_name)
+
+def move_turtles_random() -> None:
+    publishers = tuple(
+        rospy.Publisher(f"/turtle{idx}/cmd_vel", Twist, queue_size=10)
+        for idx in INDICES
+    )
+
+    rate = rospy.Rate(10)
+    velocities = tuple(Twist() for _ in INDICES)
+
+    while not rospy.is_shutdown():
+        for vel in velocities:
+            vel.angular.z = 1
+            vel.linear.x = 1
+
+        for v_pub, vel in zip(publishers, velocities):
+            v_pub.publish(vel)
+
+        rate.sleep()
+
+
+def initialize_turtles() -> None:
+    for idx, coordinate in zip(INDICES, INITIAL_COORDINATES):
+        create_turtle(*coordinate, f"turtle{idx}")
 
 
 if __name__ == "__main__":
