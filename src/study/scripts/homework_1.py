@@ -1,55 +1,61 @@
 #!/usr/bin/env python3
-import os
 import math
+import os
 import threading
-import rospy
 
-from turtlesim.srv import Spawn, Kill, TeleportAbsolute, SetPen
+# ros stuff
+import rospy
+from turtlesim.srv import Kill, SetPen, Spawn, TeleportAbsolute
+
+# font stuff
+from rdp import rdp
+from fontTools.pens.recordingPen import RecordingPen
+from fontTools.ttLib import TTFont
+from fontPens.flattenPen import FlattenPen
+
 
 __all__ = ("Turtle",)
 
 COLOR = (255, 255, 255)
-WIDTH = 4
+WIDTH = 5
 SCALE = 3.0
 SPACING = 0.20
-SAMPLES = 32
+EPSILON = 0.0001
 START_X = 0.5
 BASELINE_Y = 4.0
 NODE_NAME = "homework-1"
+FONT_FILE = "LiberationSans-Regular.ttf"
+TARGET_DIGITS = [0, 2, 6, 5]
 
-# Extracted using Ramer-Douglas-Peucker & TTF
+# Ramer–Douglas–Peucker algorithm was used in order to extract path/segments from font file.
+# Outsourced from rdp library, everything is stored in DIGITS global constant(?) below(bottom of this file).
+# It should be able to draw anything, even if it is not digit (we're using font file ...).
 
-# fmt: off
-DIGITS = {
-    0: [
-        [(0.6752,0.5000), (0.6744,0.3554), (0.6610,0.2783), (0.6449,0.2314), (0.6185,0.1761), (0.5839,0.1204), (0.5542,0.0847), (0.5277,0.0606), (0.4909,0.0362), (0.4501,0.0180), (0.4053,0.0061), (0.3463,0.0001), (0.2468,0.0001), (0.1944,0.0151), (0.1629,0.0360), (0.1314,0.0659), (0.0739,0.1440), (0.0362,0.2292), (0.0139,0.3204), (0.0007,0.4551), (0.0007,0.6486), (0.0156,0.7346), (0.0499,0.8205), (0.0869,0.8829), (0.1220,0.9238), (0.1638,0.9560), (0.2122,0.9794), (0.2673,0.9940), (0.3291,0.9999), (0.4366,0.9995), (0.4844,0.9851), (0.5264,0.9555), (0.5627,0.9167), (0.5985,0.8658), (0.6292,0.8031), (0.6493,0.7401), (0.6637,0.6686), (0.6723,0.5886), (0.6752,0.5000)],
-        [(0.5490,0.5000), (0.5482,0.6313), (0.5397,0.6952), (0.5144,0.7750), (0.4761,0.8416), (0.4309,0.8785), (0.3734,0.8970), (0.2721,0.8985), (0.2511,0.8919), (0.2307,0.8789), (0.1881,0.8280), (0.1560,0.7597), (0.1365,0.6734), (0.1267,0.5637), (0.1257,0.3837), (0.1326,0.3200), (0.1616,0.2274), (0.2012,0.1599), (0.2469,0.1224), (0.2741,0.1107), (0.3106,0.1029), (0.4023,0.1022), (0.4260,0.1109), (0.4493,0.1290), (0.4722,0.1565), (0.4979,0.1993), (0.5248,0.2708), (0.5429,0.3730), (0.5490,0.5000)],
-    ],
-    2: [
-        [(0.0000,0.0000), (0.0000,0.0889), (0.0272,0.1487), (0.0532,0.1893), (0.1065,0.2563), (0.1740,0.3271), (0.3665,0.4893), (0.4340,0.5548), (0.4672,0.5976), (0.4895,0.6365), (0.5024,0.6757), (0.5076,0.7184), (0.5060,0.7818), (0.4872,0.8215), (0.4410,0.8670), (0.3862,0.8902), (0.3435,0.8961), (0.2801,0.8961), (0.2531,0.8893), (0.2238,0.8739), (0.1891,0.8472), (0.1624,0.8151), (0.1441,0.7760), (0.1343,0.7301), (0.0056,0.7420), (0.0138,0.8085), (0.0247,0.8390), (0.0559,0.8833), (0.1059,0.9301), (0.1522,0.9607), (0.2046,0.9825), (0.2868,0.9983), (0.4024,1.0000), (0.4400,0.9956), (0.4832,0.9802), (0.5272,0.9536), (0.5667,0.9207), (0.5957,0.8855), (0.6170,0.8447), (0.6321,0.7911), (0.6370,0.7381), (0.6358,0.6875), (0.6211,0.6395), (0.5876,0.5736), (0.5361,0.5063), (0.4512,0.4250), (0.2388,0.2427), (0.1774,0.1729), (0.1385,0.1070), (0.6524,0.1070), (0.6524,0.0000), (0.0000,0.0000)],
-    ],
-    6: [
-        [(0.6517,0.3317), (0.6497,0.2305), (0.6282,0.1697), (0.6008,0.1273), (0.5576,0.0782), (0.5226,0.0500), (0.4831,0.0281), (0.4392,0.0125), (0.3823,0.0022), (0.2353,0.0019), (0.2041,0.0119), (0.1726,0.0305), (0.1139,0.0869), (0.0764,0.1378), (0.0530,0.1808), (0.0339,0.2292), (0.0166,0.2945), (0.0014,0.4207), (0.0004,0.6193), (0.0127,0.6994), (0.0427,0.7812), (0.0961,0.8731), (0.1472,0.9302), (0.1840,0.9572), (0.2246,0.9777), (0.2689,0.9916), (0.3270,0.9995), (0.4843,0.9969), (0.5212,0.9807), (0.5544,0.9505), (0.5929,0.8887), (0.6248,0.8021), (0.5062,0.7807), (0.4867,0.8436), (0.4749,0.8631), (0.4477,0.8826), (0.4014,0.8956), (0.2831,0.8984), (0.2560,0.8876), (0.2317,0.8680), (0.1781,0.7941), (0.1485,0.7218), (0.1291,0.6224), (0.1234,0.5138), (0.1439,0.5511), (0.1636,0.5729), (0.2075,0.6032), (0.2587,0.6266), (0.3023,0.6375), (0.3446,0.6418), (0.4308,0.6420), (0.4697,0.6339), (0.5059,0.6154), (0.5436,0.5865), (0.5823,0.5472), (0.6073,0.5122), (0.6267,0.4732), (0.6406,0.4301), (0.6517,0.3317)],
-        [(0.5255,0.3262), (0.5237,0.3989), (0.5142,0.4294), (0.4988,0.4571), (0.4738,0.4890), (0.4454,0.5140), (0.4164,0.5301), (0.3784,0.5417), (0.2780,0.5458), (0.2342,0.5302), (0.1992,0.5046), (0.1711,0.4752), (0.1509,0.4396), (0.1401,0.4029), (0.1367,0.2854), (0.1575,0.2233), (0.1914,0.1717), (0.2211,0.1403), (0.2547,0.1179), (0.2973,0.1034), (0.3956,0.1021), (0.4250,0.1151), (0.4556,0.1398), (0.4892,0.1803), (0.5094,0.2218), (0.5215,0.2704), (0.5255,0.3262)],
-    ],
-    5: [
-        [(0.6795,0.3352), (0.6772,0.2325), (0.6665,0.1970), (0.6502,0.1657), (0.6183,0.1228), (0.5749,0.0787), (0.5359,0.0504), (0.4919,0.0283), (0.4429,0.0126), (0.3887,0.0031), (0.2343,0.0021), (0.1926,0.0132), (0.1484,0.0339), (0.1018,0.0640), (0.0686,0.0936), (0.0256,0.1565), (0.0000,0.2344), (0.1274,0.2491), (0.1546,0.1589), (0.1740,0.1374), (0.2036,0.1212), (0.2756,0.1054), (0.3863,0.1029), (0.4155,0.1088), (0.4423,0.1222), (0.4982,0.1719), (0.5305,0.2265), (0.5459,0.2878), (0.5486,0.3819), (0.5441,0.4060), (0.5304,0.4347), (0.4873,0.4864), (0.4374,0.5200), (0.3817,0.5367), (0.3064,0.5402), (0.2609,0.5312), (0.2042,0.5074), (0.1519,0.4696), (0.0287,0.4696), (0.0616,1.0000), (0.6221,1.0000), (0.6221,0.8929), (0.1763,0.8929), (0.1575,0.5801), (0.2132,0.6207), (0.2811,0.6387), (0.4430,0.6428), (0.5002,0.6268), (0.5404,0.6028), (0.5770,0.5730), (0.6085,0.5413), (0.6348,0.5056), (0.6551,0.4663), (0.6693,0.4234), (0.6795,0.3352)],
-    ],
-}
-# fmt: on
+
+def main() -> int:
+    rospy.init_node(NODE_NAME)
+
+    rospy.wait_for_service("/kill")
+    rospy.ServiceProxy("/kill", Kill)("turtle1")
+
+    turtles = [Turtle(digit, idx) for idx, digit in enumerate(TARGET_DIGITS)]
+
+    for turtle in turtles:
+        turtle.start()
+
+    for turtle in turtles:
+        turtle.join()
+
+    return os.EX_OK
 
 
 class Turtle(threading.Thread):
-    """Turtle is just aaa thread, sketchy abstraction"""
+    """Turtle is just thread with extra methods, sketchy abstraction ..."""
 
-    counter: int = 0
     lock: threading.Lock = threading.Lock()
 
     def __init__(self, digit: int, idx: int) -> None:
-        with Turtle.lock:
-            Turtle.counter += 1
-            name = f"worker_{Turtle.counter}"
-
+        name = f"worker_{idx}"
         super().__init__(name=name)
         self.name = name
 
@@ -57,9 +63,7 @@ class Turtle(threading.Thread):
         self.pen(off=True)
 
         self.digit, self.idx = digit, idx
-        self.width = max(
-            max(point[0] for point in segment) for segment in DIGITS[self.digit]
-        )
+        self.width = max(max(p[0] for p in segment) for segment in DIGITS[self.digit])
         self.ox = START_X + self.idx * (self.width + SPACING) * SCALE
 
     def run(self) -> None:
@@ -88,7 +92,7 @@ class Turtle(threading.Thread):
             x, y, theta
         )
 
-    def heading(self, a: float, b: float) -> float:
+    def heading(self, a: tuple, b: tuple) -> float:
         return math.atan2(b[1] - a[1], b[0] - a[0])
 
     def trace(self, stroke: list, ox: float, oy: float, scale: float) -> None:
@@ -106,26 +110,70 @@ class Turtle(threading.Thread):
         self.pen(off=True)
 
 
-def main() -> int:
-    rospy.init_node(NODE_NAME)
+def extract_digit_path(digits: list) -> dict:
+    font = TTFont(FONT_FILE)
+    glyph_set = font.getGlyphSet()
+    cmap = font["cmap"].getBestCmap()
 
-    try:  # clear ...
-        rospy.wait_for_service("/kill")
-        rospy.ServiceProxy("/kill", Kill)("turtle1")
-    except Exception:
-        pass  # ignore ...
+    raw_strokes = {}
+    min_y, max_y = float("inf"), float("-inf")
 
-    digits = [0, 2, 6, 5]
+    for digit in digits:
+        if ord(str(digit)) not in cmap:
+            continue
 
-    turtles = tuple(Turtle(digit, idx) for idx, digit in enumerate(digits))
+        recorder = RecordingPen()
+        glyph_set[cmap[ord(str(digit))]].draw(
+            FlattenPen(recorder, approximateSegmentLength=5, segmentLines=True)
+        )
 
-    for turtle in turtles:
-        turtle.start()
+        strokes, current_stroke = [], []
 
-    for turtle in turtles:
-        turtle.join()
+        for command, args in recorder.value:
+            if command == "moveTo":
+                if current_stroke:
+                    strokes.append(current_stroke)
+                current_stroke = [args[0]]
+                min_y = min(min_y, args[0][1])
+                max_y = max(max_y, args[0][1])
 
-    return os.EX_OK
+            elif command == "lineTo":
+                current_stroke.append(args[0])
+                min_y = min(min_y, args[0][1])
+                max_y = max(max_y, args[0][1])
+
+            elif command in ("closePath", "endPath"):
+                if current_stroke:
+                    if (
+                        command == "closePath"
+                        and current_stroke[-1] != current_stroke[0]
+                    ):
+                        current_stroke.append(current_stroke[0])
+                    strokes.append(current_stroke)
+                    current_stroke = []
+
+        if current_stroke:
+            strokes.append(current_stroke)
+
+        raw_strokes[digit] = strokes
+
+    scale = 1.0 / (max_y - min_y) if max_y > min_y else 1.0
+    normalized = {}
+
+    for digit, strokes in raw_strokes.items():
+        min_x = min((min(p[0] for p in s) for s in strokes if s), default=0)
+        normalized[digit] = [
+            rdp(
+                [((x - min_x) * scale, (y - min_y) * scale) for x, y in stroke], EPSILON
+            )
+            for stroke in strokes
+            if stroke
+        ]
+
+    return normalized
+
+
+DIGITS = extract_digit_path(TARGET_DIGITS)
 
 
 if __name__ == "__main__":
