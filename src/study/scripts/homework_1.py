@@ -35,8 +35,11 @@ TARGET_DIGITS = [0, 2, 6, 5]
 def main() -> int:
     rospy.init_node(NODE_NAME)
 
-    rospy.wait_for_service("/kill")
-    rospy.ServiceProxy("/kill", Kill)("turtle1")
+    try:
+        rospy.wait_for_service("/kill", timeout=2.0)
+        rospy.ServiceProxy("/kill", Kill)("turtle1")
+    except Exception:
+        pass
 
     turtles = [Turtle(digit, idx) for idx, digit in enumerate(TARGET_DIGITS)]
 
@@ -51,8 +54,6 @@ def main() -> int:
 
 class Turtle(threading.Thread):
     """Turtle is just thread with extra methods, sketchy abstraction ..."""
-
-    lock: threading.Lock = threading.Lock()
 
     def __init__(self, digit: int, idx: int) -> None:
         name = f"worker_{idx}"
