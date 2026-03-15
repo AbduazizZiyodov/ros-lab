@@ -5,6 +5,7 @@ export ROS_IP=$(hostname -I | cut -f1 -d' ')
 export ROS_HOSTNAME=$ROS_IP
 export ROS_MASTER_URI="http://$ROS_IP:11311"
 export GAZEBO_MODEL_PATH=/root/.gazebo/models
+export DISABLE_ROS1_EOL_WARNINGS=1
 source /opt/ros/noetic/setup.bash
 source /root/catkin_ws/devel/setup.bash
 if command -v nvidia-smi &>/dev/null && nvidia-smi &>/dev/null; then
