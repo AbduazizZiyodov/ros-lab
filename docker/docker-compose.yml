@@ -1,0 +1,29 @@
+services:
+  ros_noetic:
+    image: ros_noetic_custom
+    container_name: ros_noetic
+    restart: unless-stopped
+    stdin_open: false
+    tty: false
+    network_mode: host
+    privileged: true
+    environment:
+      - DISPLAY=${DISPLAY}
+      - QT_QPA_PLATFORM=xcb
+      - TURTLEBOT3_MODEL=burger
+      - GAZEBO_MODEL_PATH=/root/.gazebo/models
+      - DISABLE_ROS1_EOL_WARNINGS=1
+      - ROS_IP
+      - ROS_HOSTNAME
+      - ROS_MASTER_URI
+    volumes:
+      - ../src:/root/catkin_ws/src
+      - ../gazebo_models:/root/.gazebo/models
+      - /tmp/.X11-unix:/tmp/.X11-unix:rw
+      - ros_home:/root
+    devices:
+      - /dev/input:/dev/input
+      - /dev/dri:/dev/dri
+    command: bash -c "sleep infinity"
+volumes:
+  ros_home:

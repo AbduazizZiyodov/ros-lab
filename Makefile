@@ -1,38 +1,66 @@
-.PHONY: full-setup-base full-setup-nvidia full-setup-non-nvidia \
-	ros-up-nvidia ros-up-non-nvidia \
-	ros-shell ros-stop ros-image-build get-gazebo-models
+.PHONY: setup shell start stop rebuild destroy destroy-all \
+	logs status get-gazebo-models \
+	_compose _compose-up _detect-gpu _check-deps
 
-ROCKER_BASE = rocker --privileged \
-	--devices /dev/input /dev/dri \
-	--network host \
-	--nocleanup \
-	--persist-image \
-	--name ros_noetic \
-	--volume $(PWD)/src:/root/catkin_ws/src \
-	--volume $(PWD)/gazebo_models:/root/.gazebo/models \
-	--x11 ros_noetic_custom
+NVIDIA_AVAILABLE := $(shell nvidia-smi > /dev/null 2>&1 && echo "yes" || echo "no")
 
-full-setup-base: ros-stop get-gazebo-models ros-image-build
-full-setup-nvidia: full-setup-base ros-up-nvidia
-full-setup-non-nvidia: full-setup-base ros-up-non-nvidia
+ifeq ($(NVIDIA_AVAILABLE), yes)
+  COMPOSE_FILES := -f docker/docker-compose.yml -f docker/docker-compose.nvidia.yml
+  GPU_MSG := "NVIDIA GPU detected"
+else
+  COMPOSE_FILES := -f docker/docker-compose.yml
+  GPU_MSG := "No NVIDIA GPU detected"
+endif
 
-ros-up-nvidia: ros-stop
-	xhost +local:docker
-	$(ROCKER_BASE) --nvidia
+export ROS_IP:=$(shell hostname -I | cut -f1 -d' ')
+export ROS_HOSTNAME:=$(ROS_IP)
+export ROS_MASTER_URI:=http://$(ROS_IP):11311
 
-ros-up-non-nvidia: ros-stop
-	xhost +local:docker
-	$(ROCKER_BASE)
+_compose:
+	@echo "=> GPU: $(GPU_MSG)"
+	@docker compose $(COMPOSE_FILES) $(COMPOSE_CMD)
 
-ros-shell:
+setup: _check-deps get-gazebo-models
+	@echo "Building Docker image..."
+	docker build -f docker/Dockerfile -t ros_noetic_custom .
+	@echo "GPU = $(GPU_MSG)"
+	@echo "Starting container"
+	xhost +local:docker 2>/dev/null || true
+	docker compose $(COMPOSE_FILES) up -d
+	@echo "Run 'make shell'"
+
+shell:
 	docker exec -it ros_noetic bash -c "tmux new-session -A -s main"
 
-ros-stop:
-	-docker stop ros_noetic
-	-docker rm -f ros_noetic
+start:
+	xhost +local:docker 2>/dev/null || true
+	docker compose $(COMPOSE_FILES) start
 
-ros-image-build:
+stop:
+	docker compose $(COMPOSE_FILES) stop
+
+rebuild: stop
 	docker build -t ros_noetic_custom .
+	docker compose $(COMPOSE_FILES) up -d --force-recreate
+
+destroy: stop
+	docker compose $(COMPOSE_FILES) rm -f
+
+destroy-all: stop
+	docker compose $(COMPOSE_FILES) rm -f
+	docker compose $(COMPOSE_FILES) down -v
+
+logs:
+	docker compose $(COMPOSE_FILES) logs -f
 
 get-gazebo-models:
-	git -C gazebo_models pull || git clone https://github.com/osrf/gazebo_models gazebo_models
+	git -C gazebo_models pull 2>/dev/null || \
+	    git clone https://github.com/osrf/gazebo_models gazebo_models
+	@echo "Gazebo models are up to date"
+
+_check-deps:
+	command -v docker > /dev/null 2>&1 || \
+	    (echo "Docker is not found. Install Docker Engine." && exit 1)
+	docker compose version > /dev/null 2>&1 || \
+	    (echo "docker compose is not found. Install pls." && exit 1)
+	@echo "OK"
