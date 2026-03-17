@@ -22,6 +22,7 @@ What's included (notable)
 - Shell(bash) & tmux configuration
 - Default package called `study`
 - Xbox 360 joystik configuration
+- turtlebot3_simulations already included
 
 > [!NOTE]
 > Tested o my **Debian 13** (Linux dev 6.12.73+deb13-amd64 #1 SMP PREEMPT_DYNAMIC Debian 6.12.73-1 (2026-02-17) x86_64 GNU/Linux) **Wayland**/**X11** with **Nvidia RTX 4060** PC.
@@ -58,12 +59,10 @@ Clone current repository:
 git clone git@github.com:AbduazizZiyodov/ros-lab.git
 ```
 
-Trigger `full-setup-nvidia`/`full-setup-non-nvidia` command to spin up container(s):
+Setup
 
 ```shell
-make full-setup-nvidia
-# or
-make full-setup-non-nvidia
+make setup
 ```
 
 > [!NOTE]
@@ -78,7 +77,7 @@ You might re-start(if you've exited from it or killed) the `ros_noetic` containe
 
 ## Screenshots
 
-Install & setup:
+Setup then get shell via `make shell`:
 ![1.png](./.github/assets/1.png)
 ![2.png](./.github/assets/2.png)
 ![3.png](./.github/assets/3.png)
@@ -142,13 +141,10 @@ Spawn terminal + tmux, start developing.
 - **C/C++ DevTools** - <https://marketplace.visualstudio.com/items?itemName=ms-vscode.cpp-devtools> - it is required by ROS 1 extension above (as far as I can remember), but I prefer `Clangd` (see below)
 - **Clangd** - <https://marketplace.visualstudio.com/items?itemName=llvm-vs-code-extensions.vscode-clangd>
 
-## Notes
-
-- You might need to re-run `make ros-up-*` on each restart ... (known issue)
 
 ## Known Issue(s)
 
-- After restarting the PC:
+- ~~After restarting the PC:~~(fixed)
 
 ```shell
 [ros-lab] # docker start ros_noetic
