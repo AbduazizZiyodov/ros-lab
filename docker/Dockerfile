@@ -6,10 +6,10 @@ ENV DEBIAN_FRONTEND=noninteractive \
     ROS_WS=/root/catkin_ws \
     DISABLE_ROS1_EOL_WARNINGS=1
 
-RUN apt-get update && apt-get install -y \
+RUN apt-get update && apt-get -y upgrade && apt-get install -y \
     vim nano curl wget git htop tmux \
     net-tools iputils-ping usbutils \
-    x11-apps mesa-utils \
+    x11-apps mesa-utils meshlab \
     xboxdrv joystick python3-pip \
     ros-noetic-rqt \
     ros-noetic-rqt-common-plugins \
@@ -41,8 +41,7 @@ RUN apt-get update && apt-get install -y \
     ros-noetic-turtlebot3 \
     ros-noetic-cv-camera \
     ros-noetic-turtlebot3-simulations \
-    python3-wstool python3-rosdep ninja-build stow \
-    && rm -rf /var/lib/apt/lists/*
+    python3-wstool python3-rosdep ninja-build stow
 
 WORKDIR $ROS_WS
 COPY src/ src/
