@@ -1,9 +1,8 @@
 .PHONY: setup shell start stop rebuild destroy destroy-all \
-	logs status get-gazebo-models \
+	logs status get-gazebo-models fix-perms \
 	_compose _compose-up _detect-gpu _check-deps
 
 NVIDIA_AVAILABLE := $(shell nvidia-smi > /dev/null 2>&1 && echo "yes" || echo "no")
-
 ifeq ($(NVIDIA_AVAILABLE), yes)
   COMPOSE_FILES := -f docker/docker-compose.yml -f docker/docker-compose.nvidia.yml
   GPU_MSG := "NVIDIA GPU detected"
@@ -27,9 +26,11 @@ setup: _check-deps get-gazebo-models
 	@echo "Starting container"
 	xhost +local:docker 2>/dev/null || true
 	docker compose $(COMPOSE_FILES) up -d
+	$(MAKE) fix-perms
 	@echo "Run 'make shell'"
 
 shell:
+	xhost +local:docker 2>/dev/null || true
 	docker exec -it ros_noetic bash -c "tmux new-session -A -s main"
 
 start:
@@ -40,8 +41,9 @@ stop:
 	docker compose $(COMPOSE_FILES) stop
 
 rebuild: stop
-	docker build -t ros_noetic_custom .
+	docker build -f docker/Dockerfile -t ros_noetic_custom .
 	docker compose $(COMPOSE_FILES) up -d --force-recreate
+	$(MAKE) fix-perms
 
 destroy: stop
 	docker compose $(COMPOSE_FILES) rm -f
@@ -52,6 +54,11 @@ destroy-all: stop
 
 logs:
 	docker compose $(COMPOSE_FILES) logs -f
+
+fix-perms:
+	@echo "Fixing src/ ownership to $(shell id -u):$(shell id -g)..."
+	sudo chown -R $(shell id -u):$(shell id -g) ./src
+	@echo "Done"
 
 get-gazebo-models:
 	git -C gazebo_models pull 2>/dev/null || \

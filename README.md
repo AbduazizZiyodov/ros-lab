@@ -73,7 +73,8 @@ After all of these setup thing you should get bash shell, and you can run `tmux`
 Now, you should be able to do your experiments! IP address is defaulted into `hostname -I | cut -f1 -d' '` as this container runs on `host` network. Environment after the setup:
 ![11.png](./.github/assets/11.png)
 
-You might re-start(if you've exited from it or killed) the `ros_noetic` container, or run `make ros-shell` to gain access on shell inside container.
+> ![NOTE]
+> Make sure on each restart you run `make shell`, it will autohorize docker on xhost which prevents auth errors when you try to run GUI apps from container.
 
 ## Screenshots
 
