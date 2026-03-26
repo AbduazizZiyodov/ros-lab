@@ -41,7 +41,13 @@ RUN apt-get update && apt-get -y upgrade && apt-get install -y \
     ros-noetic-turtlebot3 \
     ros-noetic-cv-camera \
     ros-noetic-turtlebot3-simulations \
-    python3-wstool python3-rosdep ninja-build stow
+    ros-noetic-image-transport \
+    ros-noetic-cv-bridge \
+    ros-noetic-vision-opencv \
+    ros-noetic-image-proc \
+    libopencv-dev python3-wstool python3-opencv python3-rosdep ninja-build stow
+
+RUN pip install msgpack argparse rosinstall empy defusedxml netifaces
 
 WORKDIR $ROS_WS
 COPY src/ src/
