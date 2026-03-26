@@ -65,7 +65,7 @@ Setup
 make setup
 ```
 
-> [!NOTE]
+> ![NOTE]
 > For non-nvidia option, `rocker` mounts `--devices /dev/dri` for Intel integrated graphics support .
 
 After all of these setup thing you should get bash shell, and you can run `tmux`.
@@ -134,6 +134,9 @@ Then it will install Vs Code server on container, after that you should be able 
 
 Spawn terminal + tmux, start developing.
 
+> ![WARNING]
+> If you change the host network (e.g. Wi-Fi) connection, you need to "reload" the pre-defined IP address related variables because `roscore` can't serve via older ones. You should run either `ros_reload` or `source ~/.bashrc` from current terminal you're working on.
+
 ### Visual Studio Code Extensions
 
 - **Dev Containers** - <https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-containers>
@@ -142,13 +145,4 @@ Spawn terminal + tmux, start developing.
 - **C/C++ DevTools** - <https://marketplace.visualstudio.com/items?itemName=ms-vscode.cpp-devtools> - it is required by ROS 1 extension above (as far as I can remember), but I prefer `Clangd` (see below)
 - **Clangd** - <https://marketplace.visualstudio.com/items?itemName=llvm-vs-code-extensions.vscode-clangd>
 
-
 ## Known Issue(s)
-
-- ~~After restarting the PC:~~(fixed)
-
-```shell
-[ros-lab] # docker start ros_noetic
-Error response from daemon: failed to create task for container: failed to create shim task: OCI runtime create failed: runc create failed: unable to start container process: error during container init: error mounting "/tmp/.dockeryio10bi4.xauth" to rootfs at "/tmp/.dockeryio10bi4.xauth": mount src=/tmp/.dockeryio10bi4.xauth, dst=/tmp/.dockeryio10bi4.xauth, dstFd=/proc/thread-self/fd/12, flags=MS_BIND|MS_REC: not a directory: Are you trying to mount a directory onto a file (or vice-versa)? Check if the specified host path exists and is the expected type
-failed to start containers: ros_noetic
-```
