@@ -65,7 +65,7 @@ Setup
 make setup
 ```
 
-> ![NOTE]
+> [!NOTE]
 > For non-nvidia option, `rocker` mounts `--devices /dev/dri` for Intel integrated graphics support .
 
 After all of these setup thing you should get bash shell, and you can run `tmux`.
@@ -73,7 +73,7 @@ After all of these setup thing you should get bash shell, and you can run `tmux`
 Now, you should be able to do your experiments! IP address is defaulted into `hostname -I | cut -f1 -d' '` as this container runs on `host` network. Environment after the setup:
 ![11.png](./.github/assets/11.png)
 
-> ![NOTE]
+> [!NOTE]
 > Make sure on each restart you run `make shell`, it will autohorize docker on xhost which prevents auth errors when you try to run GUI apps from container.
 
 ## Screenshots
@@ -134,7 +134,7 @@ Then it will install Vs Code server on container, after that you should be able 
 
 Spawn terminal + tmux, start developing.
 
-> ![WARNING]
+> [!WARNING]
 > If you change the host network (e.g. Wi-Fi) connection, you need to "reload" the pre-defined IP address related variables because `roscore` can't serve via older ones. You should run either `ros_reload` or `source ~/.bashrc` from current terminal you're working on.
 
 ### Visual Studio Code Extensions
