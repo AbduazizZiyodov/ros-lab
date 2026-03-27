@@ -1,4 +1,4 @@
 <launch>
-  <node pkg="turtlesim" type="turtlesim_node" name="turtlesim_node" output="screen"/>
-  <node pkg="study" type="hw1_U2210265.py" name="hw1_U2210265"/>
+  <node pkg="turtlesim" type="turtlesim_node" name="turtlesim_node" output="screen" />
+  <node pkg="study" type="hw1_U2210265.py" name="hw1_U2210265" />
 </launch>

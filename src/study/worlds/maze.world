@@ -15,7 +15,7 @@
         <visual name="visual">
           <geometry>
             <mesh>
-              <uri>model://study/meshes/turtlebot3_map_model.dae</uri>
+              <uri>model://study/meshes/maze.dae</uri>
               <scale>1 1 2</scale>
             </mesh>
           </geometry>
@@ -23,7 +23,7 @@
         <collision name="collision">
           <geometry>
             <mesh>
-              <uri>model://study/meshes/turtlebot3_map_model.dae</uri>
+              <uri>model://study/meshes/maze.dae</uri>
               <scale>1 1 2</scale>
             </mesh>
           </geometry>
