@@ -4,7 +4,8 @@ ENV DEBIAN_FRONTEND=noninteractive \
     QT_QPA_PLATFORM=xcb \
     TURTLEBOT3_MODEL=burger \
     ROS_WS=/root/catkin_ws \
-    DISABLE_ROS1_EOL_WARNINGS=1
+    DISABLE_ROS1_EOL_WARNINGS=1 \
+    GAZEBO_MODEL_PATH=/root/.gazebo/models
 
 RUN apt-get update && apt-get -y upgrade && apt-get install -y \
     vim nano curl wget git htop tmux \

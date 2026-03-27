@@ -11,10 +11,6 @@ else
   GPU_MSG := "No NVIDIA GPU detected"
 endif
 
-export ROS_IP:=$(shell hostname -I | cut -f1 -d' ')
-export ROS_HOSTNAME:=$(ROS_IP)
-export ROS_MASTER_URI:=http://$(ROS_IP):11311
-
 _compose:
 	@echo "=> GPU: $(GPU_MSG)"
 	@docker compose $(COMPOSE_FILES) $(COMPOSE_CMD)
