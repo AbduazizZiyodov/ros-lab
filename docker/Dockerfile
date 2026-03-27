@@ -7,7 +7,7 @@ ENV DEBIAN_FRONTEND=noninteractive \
     DISABLE_ROS1_EOL_WARNINGS=1 \
     GAZEBO_MODEL_PATH=/root/.gazebo/models
 
-RUN apt-get update && apt-get -y upgrade && apt-get install -y \
+RUN apt-get update && apt-get install -y \
     vim nano curl wget git htop tmux \
     net-tools iputils-ping usbutils \
     x11-apps mesa-utils meshlab \
