@@ -20,6 +20,4 @@
   <include file="$(find turtlebot3_navigation)/launch/turtlebot3_navigation.launch">
     <arg name="map_file" value="/root/catkin_ws/src/maps/maze_map.yaml" />
   </include>
-  <node pkg="turtlebot3_teleop" type="turtlebot3_teleop_key" name="turtlebot3_teleop_keyboard"
-    output="screen" />
 </launch>
