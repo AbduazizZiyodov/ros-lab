@@ -46,6 +46,20 @@ RUN apt-get update && apt-get install -y \
     ros-noetic-cv-bridge \
     ros-noetic-vision-opencv \
     ros-noetic-image-proc \
+    ros-noetic-hector-slam \
+    ros-noetic-hector-mapping \
+    ros-noetic-hector-geotiff \
+    ros-noetic-hector-trajectory-server \
+    ros-noetic-slam-toolbox \
+    ros-noetic-rtabmap-ros \
+    ros-noetic-pointcloud-to-laserscan \
+    ros-noetic-laser-filters \
+    ros-noetic-depthimage-to-laserscan \
+    ros-noetic-robot-localization \
+    ros-noetic-imu-filter-madgwick \
+    ros-noetic-tf2-tools \
+    ros-noetic-rqt-tf-tree \
+    ros-noetic-diagnostic-updater \
     libopencv-dev python3-wstool python3-opencv python3-rosdep ninja-build stow
 
 RUN pip install msgpack argparse rosinstall empy defusedxml netifaces
