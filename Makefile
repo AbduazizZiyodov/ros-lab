@@ -11,26 +11,30 @@ else
   GPU_MSG := "No NVIDIA GPU detected"
 endif
 
+export HOSTNAME
+
 _compose:
 	@echo "=> GPU: $(GPU_MSG)"
 	@docker compose $(COMPOSE_FILES) $(COMPOSE_CMD)
 
 setup: _check-deps get-gazebo-models
-	@echo "Building Docker image..."
+	@echo "[INFO] Building Docker image"
 	docker build -f docker/Dockerfile -t ros_noetic_custom .
-	@echo "GPU = $(GPU_MSG)"
-	@echo "Starting container"
-	xhost +local:docker 2>/dev/null || true
+	@echo "[INFO] GPU = $(GPU_MSG)"
+	@echo "[INFO] Starting container"
 	docker compose $(COMPOSE_FILES) up -d
 	$(MAKE) fix-perms
-	@echo "Run 'make shell'"
+	@echo "[INFO] Installing xhost autostart service"
+	mkdir -p $(HOME)/.config/systemd/user
+	cp docker/xhost-docker.service $(HOME)/.config/systemd/user/xhost-docker.service
+	systemctl --user enable xhost-docker.service 2>/dev/null || true
+	systemctl --user start xhost-docker.service 2>/dev/null || true
+	@echo "[SUCCESS] Done. Run 'make shell'"
 
 shell:
-	xhost +local:docker 2>/dev/null || true
-	docker exec -it ros_noetic bash -c "tmux new-session -A -s main"
+	HOSTNAME=$(shell hostname) docker exec -it ros_noetic bash -c "tmux new-session -A -s main"
 
 start:
-	xhost +local:docker 2>/dev/null || true
 	docker compose $(COMPOSE_FILES) start
 
 stop:
@@ -47,23 +51,24 @@ destroy: stop
 destroy-all: stop
 	docker compose $(COMPOSE_FILES) rm -f
 	docker compose $(COMPOSE_FILES) down -v
+	docker volume rm -f ros_devel ros_build ros_logs 2>/dev/null || true
 
 logs:
 	docker compose $(COMPOSE_FILES) logs -f
 
 fix-perms:
-	@echo "Fixing src/ ownership to $(shell id -u):$(shell id -g)..."
+	@echo "[INFO] Fixing src/ ownership to $(shell id -u):$(shell id -g)"
 	sudo chown -R $(shell id -u):$(shell id -g) ./src
-	@echo "Done"
+	@echo "[INFO] Done."
 
 get-gazebo-models:
 	git -C gazebo_models pull 2>/dev/null || \
 	    git clone https://github.com/osrf/gazebo_models gazebo_models
-	@echo "Gazebo models are up to date"
+	@echo "[INFO] Gazebo models are up to date"
 
 _check-deps:
 	command -v docker > /dev/null 2>&1 || \
-	    (echo "Docker is not found. Install Docker Engine." && exit 1)
+	    (echo "[ERROR] Docker is not found. Install Docker Engine." && exit 1)
 	docker compose version > /dev/null 2>&1 || \
-	    (echo "docker compose is not found. Install pls." && exit 1)
+	    (echo "[ERROR] docker compose is not found. Install pls." && exit 1)
 	@echo "OK"

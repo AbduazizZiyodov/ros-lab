@@ -7,16 +7,29 @@ services:
     tty: false
     network_mode: host
     privileged: true
+    command: bash -c "sleep infinity"
     environment:
       - DISPLAY=${DISPLAY}
+      - HOST_USER=${USER}
+      - HOST_HOSTNAME=${HOSTNAME}
+    security_opt:
+      - apparmor:unconfined
     volumes:
       - ../src:/root/catkin_ws/src
       - ../gazebo_models:/root/.gazebo/models
+      - ros_noetic_devel:/root/catkin_ws/devel
+      - ros_noetic_build:/root/catkin_ws/build
+      - ros_noetic_logs:/root/.ros
       - /tmp/.X11-unix:/tmp/.X11-unix:rw
-      - ros_home:/root
-    devices:
       - /dev/input:/dev/input
+      - /run/udev:/run/udev:ro
+      - ./.bash_history:/root/.bash_history
+    devices:
       - /dev/dri:/dev/dri
-    command: bash -c "sleep infinity"
+    device_cgroup_rules:
+      - 'c 13:* rmw'
+      - 'c 188:* rmw'
 volumes:
-  ros_home:
+  ros_noetic_devel:
+  ros_noetic_build:
+  ros_noetic_logs:

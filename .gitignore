@@ -1,5 +1,6 @@
 # Custom
 gazebo_models/
+docker/.bash_history
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

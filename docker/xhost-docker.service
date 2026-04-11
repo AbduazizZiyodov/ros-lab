@@ -1,0 +1,11 @@
+[Unit]
+Description=Allow local Docker containers to access X display (by ros-lab)
+After=graphical-session.target
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/xhost +local:docker
+RemainAfterExit=true
+
+[Install]
+WantedBy=graphical-session.target

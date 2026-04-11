@@ -69,16 +69,13 @@ COPY src/ src/
 
 RUN /bin/bash -c "source /opt/ros/noetic/setup.bash && catkin_make"
 
+RUN mkdir -p /root/.gazebo/models
+COPY gazebo_models/ /root/.gazebo/models
+
 COPY .bashrc /tmp/.bashrc_append
 RUN cat /tmp/.bashrc_append >> /root/.bashrc && rm /tmp/.bashrc_append
 
 COPY .tmux.conf /root/.tmux.conf
-
-RUN mkdir -p /root/.gazebo/models
-COPY gazebo_models/ /root/.gazebo/models
-
-RUN curl -LsSf https://astral.sh/uv/install.sh | sh \
-    && $HOME/.local/bin/uv tool install ruff
 
 COPY entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
