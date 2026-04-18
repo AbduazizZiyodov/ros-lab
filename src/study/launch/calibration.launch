@@ -1,0 +1,18 @@
+<launch>
+  <node pkg="image_transport" type="republish" name="republish"
+        args="compressed raw">
+    <remap from="in" to="/camera/image"/>
+    <remap from="out" to="/camera/image_raw_local"/>
+  </node>
+
+  <node ns="camera" pkg="image_proc" type="image_proc" name="image_proc" output="screen">
+    <remap from="image_raw" to="image_raw_local"/>
+    <param name="queue_size" value="20"/>
+  </node>
+
+  <include file="$(find turtlebot3_autorace_camera)/launch/extrinsic_camera_calibration.launch">
+    <arg name="mode" value="calibration"/>
+  </include>
+
+  <node pkg="rqt_gui" type="rqt_gui" name="rqt_gui" output="screen"/>
+</launch>
