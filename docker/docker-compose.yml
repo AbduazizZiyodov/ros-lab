@@ -12,6 +12,7 @@ services:
       - DISPLAY=${DISPLAY}
       - HOST_USER=${USER}
       - HOST_HOSTNAME=${HOSTNAME}
+      - TZ=Asia/Tashkent # you should adjust mb
     security_opt:
       - apparmor:unconfined
     volumes:
@@ -24,6 +25,8 @@ services:
       - /dev/input:/dev/input
       - /run/udev:/run/udev:ro
       - ./.bash_history:/root/.bash_history
+      - /etc/localtime:/etc/localtime:ro
+      - /etc/timezone:/etc/timezone:ro
     devices:
       - /dev/dri:/dev/dri
     device_cgroup_rules:
