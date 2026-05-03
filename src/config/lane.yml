@@ -1,7 +1,8 @@
+
 dictitems:
-  groups:
+  groups: 
     dictitems:
-      groups:
+      groups: 
         state: []
       hue_white_h: 65
       hue_white_l: 18
@@ -13,7 +14,7 @@ dictitems:
       lightness_yellow_h: 255
       lightness_yellow_l: 99
       name: Default
-      parameters:
+      parameters: 
         state: []
       parent: 0
       saturation_white_h: 162
