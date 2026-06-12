@@ -6,7 +6,12 @@
   <i>"My approach on setting up ROS 1 (noetic) & turtlebot3 (burger) development environment via docker."</i>
 </p>
 
-<!-- AI-FREE -->
+<p align="center">
+  <a href="https://www.youtube.com/watch?v=HAn3KAwpok8" target="_blank">
+    <img alt="YouTube Icon" src="https://upload.wikimedia.org/wikipedia/commons/0/09/YouTube_full-color_icon_%282017%29.svg" width="20px"> Sample Project | i.e. Capstone First Project
+  </a>
+</p>
+
 <p align="center">
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset="https://abduaziz.ziyodov.uz/badges/ai-free-dark.svg">
@@ -15,8 +20,18 @@
   </picture>
 </p>
 
-What's included (notable)
+## Acknowledgments
 
+Special thanks to the following individuals for their guidance and support:
+
+* <img src="https://avatars.githubusercontent.com/u/67625492?v=4" width="24" height="24" style="border-radius:50%;" align="center" /> **[Oybek Eraliev](https://github.com/Oybek90)** - for the Capstone/Robotics (ROS1, 202601-ice-cse4020) university course that triggered this project.
+* <img src="https://avatars.githubusercontent.com/u/130177198?v=4" width="24" height="24" style="border-radius:50%;" align="center" /> **[Shakhzod Mirmuminov](https://github.com/ShakhzodMirmuminov)** - for using & assistance testing this setup in physical environments, finding errors, and providing constant feedback and feature requests.
+
+## About
+
+Relatively lightweight environment for ROS1, created for Capstone Design (i.e. Robotics, ROS1) course.
+
+What's included (notable)
 - Full ROS desktop environment with extras, feel free to extend it (see `Dockerfile` ...)
 - NVIDIA GPU support via `rocker` for gazebo simulations + "pre-fetching" gazebo models
 - Shell(bash) & tmux configuration
@@ -25,11 +40,14 @@ What's included (notable)
 - turtlebot3_simulations already included
 
 > [!NOTE]
-> Tested o my **Debian 13** (Linux dev 6.12.73+deb13-amd64 #1 SMP PREEMPT_DYNAMIC Debian 6.12.73-1 (2026-02-17) x86_64 GNU/Linux) **Wayland**/**X11** with **Nvidia RTX 4060** PC.
+> Tested on my **Debian 13** (both **Wayland** & **X11**) with GPU **Nvidia RTX 4060**(PC), **Nvidia MX230**(laptop, \* bruuh \*) & laptops with integrated GPU(**Intel Iris** - as I remember).
+
+> [!TIP]
+> **For IUT students (if you're unsure)**: This setup was tested by students across all class activities, homework assignments, and projects (1 and 2). Any issues that appeared during that period were addressed immediately on spot.
 
 ## Setup
 
-Install `docker`: <https://docs.docker.com/engine/install/debian>
+Install `docker`: <https://docs.docker.com/engine/install/debian> (I also like `podman`, but it is what it is)
 
 `rocker`(see <https://github.com/osrf/rocker>):
 
@@ -146,3 +164,5 @@ Spawn terminal + tmux, start developing.
 - **Clangd** - <https://marketplace.visualstudio.com/items?itemName=llvm-vs-code-extensions.vscode-clangd>
 
 ## Known Issue(s)
+
+See [issues](https://github.com/AbduazizZiyodov/ros-lab/issues) for Issues(yes!) & feature requests (and upcoming features).
